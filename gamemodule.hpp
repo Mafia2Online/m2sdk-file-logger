@@ -67,31 +67,6 @@ void mod_install() {
     });
 }
 void mod_respawn() {
-    M2::C_GfxEnvironmentEffects::Get()->GetWeatherManager()->SetTime(0.5); /* 0.0 .. 1.0 - time of the day */
-
-    auto ped = (M2::C_Entity *)M2::C_Game::Get()->GetLocalPed();
-
-    if (M2::C_SDSLoadingTable::Get()) {
-        M2::C_SDSLoadingTable::Get()->ProcessLine("free_joe_load");
-        M2::C_SDSLoadingTable::Get()->ProcessLine("free_summer_load");
-
-        M2::C_GfxEnvironmentEffects::Get()->GetWeatherManager()->SetDayTemplate("DT_RTRclear_day_late_afternoon");
-        mod_log("[info] setting day template: %s\n", "DT_RTRclear_day_late_afternoon");
-    }
-
-    /* Disable ambiant peds */
-    M2::Wrappers::SwitchFarAmbiants(false);
-    M2::Wrappers::SwitchGenerators(false);
-
-    /* Lock to prevent actions while respawning */
-    ((M2::C_Player2 *)ped)->LockControls(true);
-
-    /* Resetting player */
-    ((M2::C_Human2 *)ped)->GetScript()->SetHealth(720.0f);
-    ((M2::C_Entity *)ped)->SetPosition(Vector3(-421.75f, 479.31f, 0.05f));
-
-    /* Enabling controls */
-    ((M2::C_Player2 *)ped)->LockControls(false);
 }
 
 // =======================================================================//
@@ -102,10 +77,6 @@ void mod_respawn() {
 
 void M2ModModule::init(M2::I_TickedModuleCallEventContext &) {
     mod_log("[GameModule]: EventGameInit\n");
-
-    // therotically we shouldn't call it here but because it's a
-    // sync object it's fine itll work but the local player isn't created just yet.
-    M2::C_GameGuiModule::Get()->FaderFadeIn(1);
 }
 
 void M2ModModule::load_start(M2::I_TickedModuleCallEventContext &) {
@@ -114,13 +85,6 @@ void M2ModModule::load_start(M2::I_TickedModuleCallEventContext &) {
 
 void M2ModModule::load_finish(M2::I_TickedModuleCallEventContext &) {
     mod_log("[GameModule]: EventLoadingFinished\n");
-    std::thread([]() {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(1500)
-        );
-
-        mod_respawn();
-    }).detach();
 }
 
 void M2ModModule::tick(M2::I_TickedModuleCallEventContext &) {
