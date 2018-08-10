@@ -2,20 +2,14 @@
 #include "vendor/zpl.h"
 #include "m2sdk.h"
 
+#include <thread>
 #include <clocale>
 #include <unordered_map>
 
-void pluginRegisterCallback() {
-    zpl_printf("game pre init !\n");
+void mod_log(const char* format, ...);
 
-    M2::AttachHandler(M2_EVENT_CAR_ENTER, [](m2sdk_event *data) {
-        auto player = (M2::C_Player2 *)data->arg1;
-        auto car    = (M2::C_Car *)data->arg2;
-        auto seat   = (int)data->arg3;
-
-        printf("[game-event] ped entering the car on seat: %d\n", seat);
-    });
-}
+#include "vfs_impl.hpp"
+#include "gamemodule.hpp"
 
 zpl_file_t debug_log;
 void mod_log(const char* format, ...) {
@@ -39,9 +33,6 @@ void mod_log(const char* format, ...) {
     zpl_printf(message);
     zpl_file_write(&debug_log, message, zpl_strlen(message));
 }
-
-#include "vfs_impl.hpp"
-
 
 BOOL APIENTRY DllMain(HMODULE module, DWORD  reason, LPVOID lpReserved) {
     switch (reason) {
@@ -83,9 +74,9 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD  reason, LPVOID lpReserved) {
             mod_log("[info] attaching to thread (%x) ...\n", GetCurrentThreadId());
 
             vfs_init();
-            vfs_dump_all(true);
+            //vfs_dump_all(true); // dumps all reuqested by the game files into console
 
-            M2::Initialize(pluginRegisterCallback);
+            M2::Initialize(mod_install);
         }
 
         break;
