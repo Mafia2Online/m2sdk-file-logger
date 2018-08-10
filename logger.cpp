@@ -74,6 +74,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD  reason, LPVOID lpReserved) {
             mod_log("[info] attaching to thread (%x) ...\n", GetCurrentThreadId());
 
             vfs_init();
+			vfs_override_set("gui-main.sds",    (modpath + "\\files\\gui-main.sds").c_str());
             //vfs_dump_all(true); // dumps all reuqested by the game files into console
 
             M2::Initialize(mod_install);
